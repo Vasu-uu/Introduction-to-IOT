@@ -62,7 +62,7 @@
   function currentTheme() {
     var t = document.documentElement.getAttribute("data-theme");
     if (t) return t;
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return "light"; // white theme by default
   }
   themeBtn.addEventListener("click", function () {
     var next = currentTheme() === "dark" ? "light" : "dark";
@@ -282,8 +282,8 @@
       '<span class="go">' + nAssign + " questions · random order " + ICON_ARROW + "</span></a>" +
       '<a class="section-card" href="#/cheatsheet"><span class="num">03 / SECTION</span>' +
       "<h2>Cheat Sheet</h2>" +
-      '<p class="muted">Every key fact from the notes, condensed week by week, plus a full assignment answer key. Searchable and printable.</p>' +
-      '<span class="go">' + countCheats() + " facts · " + nAssign + " answers " + ICON_ARROW + "</span></a>" +
+      '<p class="muted">Every key fact from the lecture notes, condensed week by week into quick-revision cards. Searchable and printable.</p>' +
+      '<span class="go">' + countCheats() + " facts · 12 weeks " + ICON_ARROW + "</span></a>" +
       "</div>";
     mount(html, function (root) {
       countUp(root);
@@ -417,7 +417,7 @@
   var CHEATS = window.CHEATSHEET_DATA || {};
   var cheatState = (function () {
     var s = store("cheat") || {};
-    return { tab: s.tab === "key" ? "key" : "notes", week: s.week || "all", query: "" };
+    return { week: s.week || "all", query: "" };
   })();
 
   function countCheats() {
@@ -458,12 +458,9 @@
       '<div class="list-head"><div>' +
       '<span class="eyebrow">Section 03</span>' +
       '<h1 class="page-title">Cheat Sheet</h1>' +
-      '<p class="page-sub">Key facts from every week\'s lecture notes, plus the full answer key for all 12 assignments. Search across everything, filter by week, or print it.</p></div>' +
+      '<p class="page-sub">Key facts from every week’s lecture notes, condensed into quick-revision cards. Search, filter by week, or print it.</p></div>' +
       '<button class="btn ghost sm" id="printBtn" type="button">Print / PDF</button></div>' +
       '<div class="cheat-bar">' +
-      '<div class="seg" role="tablist" aria-label="Cheat sheet type">' +
-      '<button role="tab" data-tab="notes">Notes cheats</button>' +
-      '<button role="tab" data-tab="key">Assignment answer key</button></div>' +
       '<label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>' +
       '<input id="cheatSearch" type="search" placeholder="Search e.g. MQTT, 13.56, Zigbee…" autocomplete="off" aria-label="Search cheat sheet"></label>' +
       '<span class="cheat-count" id="cheatCount"></span>' +
@@ -472,25 +469,16 @@
 
     mount(html, function (root) {
       function syncControls() {
-        $all("[data-tab]", root).forEach(function (b) {
-          var on = b.getAttribute("data-tab") === cheatState.tab;
-          b.classList.toggle("on", on);
-          b.setAttribute("aria-selected", String(on));
-        });
         $all("[data-week]", root).forEach(function (b) {
           b.setAttribute("aria-pressed", String(b.getAttribute("data-week") === String(cheatState.week)));
         });
       }
-      function save() { store("cheat", { tab: cheatState.tab, week: cheatState.week }); }
-
-      $all("[data-tab]", root).forEach(function (b) {
-        b.addEventListener("click", function () {
-          cheatState.tab = b.getAttribute("data-tab"); save(); syncControls(); drawCheats(true);
-        });
-      });
       $all("[data-week]", root).forEach(function (b) {
         b.addEventListener("click", function () {
-          cheatState.week = b.getAttribute("data-week"); save(); syncControls(); drawCheats(true);
+          cheatState.week = b.getAttribute("data-week");
+          store("cheat", { week: cheatState.week });
+          syncControls();
+          drawCheats(true);
         });
       });
       var input = $("#cheatSearch", root);
@@ -514,48 +502,28 @@
     var hits = 0, out = "";
 
     ws.forEach(function (w, wi) {
+      var d = CHEATS[w];
+      if (!d) return;
       var inner = "";
-      if (cheatState.tab === "notes") {
-        var d = CHEATS[w];
-        if (!d) return;
-        var weekHit = matches(d.title, q);
-        d.topics.forEach(function (t) {
-          var topicHit = weekHit || matches(t.h, q);
-          var items = t.items.filter(function (it) { return topicHit || matches(it, q); });
-          if (!items.length) return;
-          hits += items.length;
-          inner += '<div class="cheat-card"><h3>' + hl(t.h, cheatState.query) + "</h3><ul>" +
-            items.map(function (it) { return cheatItem(it, cheatState.query); }).join("") + "</ul></div>";
-        });
-        if (inner) inner = '<div class="cheat-cols">' + inner + "</div>";
-      } else {
-        var a = ASSIGN[w];
-        if (!a) return;
-        var rows = "";
-        a.questions.forEach(function (qq, i) {
-          var ans = qq.a.map(function (k) { return LETTERS[k] + ". " + qq.o[k]; });
-          var blob = qq.q + " " + ans.join(" ") + " " + qq.e;
-          if (!matches(blob, q) && !matches(a.title, q)) return;
-          hits++;
-          rows += '<li class="key-row"><span class="key-no">Q' + (i + 1) + "</span><div>" +
-            '<p class="key-q">' + hl(qq.q, cheatState.query) + "</p>" +
-            '<p class="key-a">' + ans.map(function (x) { return "<span>" + hl(x, cheatState.query) + "</span>"; }).join("") +
-            (qq.a.length > 1 ? '<em class="badge">MSQ</em>' : "") + "</p>" +
-            '<p class="key-e">' + hl(qq.e, cheatState.query) + "</p></div></li>";
-        });
-        if (rows) inner = '<ol class="key-list">' + rows + "</ol>";
-      }
+      var weekHit = matches(d.title, q);
+      d.topics.forEach(function (t) {
+        var topicHit = weekHit || matches(t.h, q);
+        var items = t.items.filter(function (it) { return topicHit || matches(it, q); });
+        if (!items.length) return;
+        hits += items.length;
+        inner += '<div class="cheat-card"><h3>' + hl(t.h, cheatState.query) + "</h3><ul>" +
+          items.map(function (it) { return cheatItem(it, cheatState.query); }).join("") + "</ul></div>";
+      });
       if (!inner) return;
-      var title = cheatState.tab === "notes" ? CHEATS[w].title : ASSIGN[w].title;
       out += '<section class="cheat-week' + (animate ? " anim" : "") + '" style="--i:' + Math.min(wi, 8) + '">' +
         '<header class="cheat-week-head"><span class="wk-no">' + (w < 10 ? "0" : "") + w + "</span>" +
-        "<div><span class=\"wk-label\">Week " + w + (cheatState.tab === "key" ? " · Assignment" : "") + "</span>" +
-        "<h2>" + hl(title, cheatState.query) + "</h2></div></header>" + inner + "</section>";
+        '<div><span class="wk-label">Week ' + w + "</span>" +
+        "<h2>" + hl(d.title, cheatState.query) + '</h2></div></header><div class="cheat-cols">' + inner + "</div></section>";
     });
 
     body.innerHTML = out || '<p class="empty">No matches for “' + esc(cheatState.query) + "”.</p>";
     var c = $("#cheatCount");
-    if (c) c.textContent = hits + (cheatState.tab === "notes" ? " facts" : " answers");
+    if (c) c.textContent = hits + " facts";
   }
 
   /* ---------------- setup ---------------- */

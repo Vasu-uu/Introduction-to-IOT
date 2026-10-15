@@ -21,8 +21,7 @@ It's plain HTML, CSS and JavaScript, so there's no build step, no framework and 
 - A **Full Assignment Quiz** shuffles all 180 questions together (or 20, 50 or 100 of them).
 
 ### 03 · Cheat Sheet
-- **Notes cheats**: 571 key facts condensed week by week from the lecture notes, grouped into topic cards (protocols, frequencies, data rates, standards, definitions, etc.).
-- **Assignment answer key**: every question from all 12 assignments with its correct answer(s) and the official explanation.
+- **571 key facts** condensed week by week from the lecture notes, grouped into topic cards (protocols, frequencies, data rates, standards, definitions, etc.).
 - Instant **search** with highlighting, a **week filter**, and a **Print / PDF** layout (one week per page).
 
 ### Quiz experience
@@ -33,7 +32,7 @@ It's plain HTML, CSS and JavaScript, so there's no build step, no framework and 
 - The results page has an animated score ring and a full answer review (with a *wrong only* filter). You can **retry** the quiz or **retry only the questions you got wrong**.
 - Your best score for each quiz is saved in your browser (`localStorage`).
 - Keyboard shortcuts: <kbd>1</kbd>–<kbd>4</kbd> or <kbd>A</kbd>–<kbd>D</kbd> select an option, <kbd>Enter</kbd> checks the answer or moves to the next question, and <kbd>←</kbd> / <kbd>→</kbd> move between questions.
-- Monochrome design with light and dark themes, smooth animations (including an animated "network of things" hero) and a responsive layout down to phone width. It respects `prefers-reduced-motion`.
+- Monochrome design with a white theme by default (dark theme via the toggle), smooth animations (including an animated "network of things" hero) and a responsive layout down to phone width. It respects `prefers-reduced-motion`.
 
 ---
 
