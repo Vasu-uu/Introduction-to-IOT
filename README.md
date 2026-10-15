@@ -20,6 +20,11 @@ It's plain HTML, CSS and JavaScript, so there's no build step, no framework and 
 - Each weekly assignment is shown in **random order** on every attempt.
 - A **Full Assignment Quiz** shuffles all 180 questions together (or 20, 50 or 100 of them).
 
+### 03 · Cheat Sheet
+- **Notes cheats**: 571 key facts condensed week by week from the lecture notes, grouped into topic cards (protocols, frequencies, data rates, standards, definitions, etc.).
+- **Assignment answer key**: every question from all 12 assignments with its correct answer(s) and the official explanation.
+- Instant **search** with highlighting, a **week filter**, and a **Print / PDF** layout (one week per page).
+
 ### Quiz experience
 - Supports **MCQ and MSQ** (multiple-select) questions, labelled on each question.
 - **Practice mode** gives you instant feedback with explanations. **Exam mode** shows feedback only at the end.
@@ -42,6 +47,7 @@ It's plain HTML, CSS and JavaScript, so there's no build step, no framework and 
 ├── js/
 │   ├── app.js            # Routing, quiz engine, results, theme, keyboard
 │   ├── notes-data.js     # Weekly notes question bank (window.NOTES_DATA)
+│   ├── cheatsheet-data.js# Cheat sheet facts per week (window.CHEATSHEET_DATA)
 │   └── assignment-data.js# Weekly assignment bank (window.ASSIGNMENT_DATA)
 ├── .gitignore            # Excludes Materials/ (course PDFs)
 └── README.md
